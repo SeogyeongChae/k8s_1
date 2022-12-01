@@ -1,0 +1,24 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: api-gateway-probe
+  labels:
+    app: spring-petclinic
+spec:
+  containers:
+  - name: api-gateway-probe
+    image: asia-northeast3-docker.pkg.dev/hyunyoung-01-368306/gcpzg/spring-petclinic-api-gateway:afe8b79
+    ports:
+    - containerPort: 8080
+    readinessProbe:
+      tcpSocket:
+        port: 8080
+      initialDelaySeconds: 5     # kubelet은 컨테이너 시작 5초 후에 첫 번째 readiness probe를 보냅니다. -> 포트 8080에서 컨테이너 연결을 시도한다.
+      periodSeconds: 10     # 10초 마다 kubelet이 계속 실행합니다.
+    livenessProbe:
+      tcpSocket:
+        port: 8080
+      initialDelaySeconds: 15     # kubelet은 컨테이너 시작 15초 후에 첫 번째 liveness probe를 실행한다. -> 포트 8080에서 컨테이너 연결을 시도한다.
+      periodSeconds: 20     # kubelet이 20초마다 liveness probe를 수행하도록 지정
+
+# liveness probe가 실패하면 컨테이너는 다시 시작됩니다.
